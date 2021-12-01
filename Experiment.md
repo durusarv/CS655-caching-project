@@ -20,9 +20,9 @@ The purpose of the remote server is to hold web objects for the clients to downl
 	2. Clear the cache server (start with a fresh cache)
 
 ### For steps 2-6:
-a. Run a script that makes these three clients pull random web objects from the remote server
-b. Have the script run for a minute long
-c. Script should be tracking throughput, RTT, average memory access time (hit time + miss rate * miss penalty)
+- Run a script that makes these three clients pull random web objects from the remote server
+- Have the script run for a minute long
+- Script should be tracking throughput, RTT, average memory access time (hit time + miss rate * miss penalty)
 
 2. Test 3 clients without caching without delay and without loss
 3. Test 3 clients without caching with delay and without loss
@@ -49,9 +49,9 @@ However, in this part, we will switch between our two different caches in order 
 	2. Clear the cache server (start with a fresh cache)
 
 ### For steps 2-6:
-a. Run a script that makes these three clients pull random web objects from the remote server
-b. Have the script run for a minute long
-c. Script should be tracking throughput, RTT, average memory access time (hit time + miss rate * miss penalty)
+- Run a script that makes these three clients pull random web objects from the remote server
+- Have the script run for a minute long
+- Script should be tracking throughput, RTT, average memory access time (hit time + miss rate * miss penalty)
 
 2. Test 3 clients with our cache without delay and without loss
 3. Test 3 clients with our cache with delay and without loss
