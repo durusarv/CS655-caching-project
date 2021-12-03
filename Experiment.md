@@ -35,9 +35,9 @@ We have configured our setup so that a client will access their cache before dow
 	2. Clear the cache server (start with a fresh cache)
 
 ### For steps 2-6:
-a. Run a script that makes these three clients pull web objects from the remote server at random
-b. Have the script run for a minute long
-c. Script should be tracking throughput and RTT, and also average memory access time if a cache is used
+i. Run a script that makes these three clients pull web objects from the remote server at random
+ii. Have the script run for a minute long
+iii. Script should be tracking throughput and RTT, and also average memory access time if a cache is used
 	- At the end, the script will output average throughput, average RTT, and average memory access time for the clients over the minute
 
 2. Test 3 clients without caching without delay and without loss
@@ -65,9 +65,9 @@ However, in this part, we will switch between our two different caches (our LRU 
 	2. Clear the cache server (start with a fresh cache)
 
 ### For steps 2-6:
-a. Run a script that makes these three clients pull web objects from the remote server at random
-b. Have the script run for a minute long
-c. Script should be tracking throughput, RTT, average memory access time (hit time + miss rate * miss penalty)
+i. Run a script that makes these three clients pull web objects from the remote server at random
+ii. Have the script run for a minute long
+iii. Script should be tracking throughput, RTT, average memory access time (hit time + miss rate * miss penalty)
 - At the end, the script will output average throughput, average RTT, and average memory access time for the clients over the minute
 
 2. Test 3 clients with our LRU cache without delay and without loss
