@@ -151,7 +151,7 @@ def send_request_to_cache(ip, port, message):
 if __name__ == '__main__':
 
     port = 9000
-    ip = "localhost"
+    ip = "localhost"  #ip address of the server
     set_up_experiment(ip, port)
     
 
