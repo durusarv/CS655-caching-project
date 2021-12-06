@@ -9,8 +9,8 @@ import random
 import matplotlib.pyplot as plt
 import subprocess
 
-hitCount = 0
-missCount = 0
+hitCount = -1
+missCount = -1
 
 
 def set_up_experiment():
@@ -37,16 +37,19 @@ def set_up_experiment():
         for i in range(iteration_num):
             req = random.choice(source_data)
             print("iteration ", i)
-            print(req)
+            print("curl -x localhost:8888 " + req)
             start_time = time.time()
-            subprocess.run(["curl", "-x", "localhost:8888", req])
+            subprocess.call("curl -x localhost:8888 " + req, shell=True)
             end_time = time.time()
             t = end_time - start_time
             rtt.append(t)
 
+        counts = read_nginx_log()
         average_rtt.append(sum(rtt) / iteration_num)
-        miss.append(missCount)
-        hit.append(hitCount)
+        miss.append(counts[1] - missCount)
+        hit.append(counts[0] - hitCount)
+        hitCount += counts[0]
+        missCount += counts[1]
 
     print("Miss avg ", sum(miss) / experiment_num)
     print("Hit avg ", sum(hit) / experiment_num)
@@ -77,19 +80,20 @@ def set_up_experiment():
 def read_nginx_log():
     global hitCount
     global missCount
+    hit = 0
+    miss = 0
     file = '/var/log/nginx/cache_access.log'
     f = open(file, "r")
     for line in f:
         print(line)
         if "HIT" in line:
-            hitCount += 1
+            hit += 1
         else:
-            missCount += 1
+            miss += 1
 
-    print(hitCount)
-    print(missCount)
+    return [hit, miss]
 
 
 if __name__ == '__main__':
     # validate argument
-    read_nginx_log()
+    set_up_experiment()
