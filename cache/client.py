@@ -5,6 +5,7 @@ import time
 import re
 import os
 from base64 import b64decode
+from typing import Sized
 import pandas as pd
 import random
 import string
@@ -12,6 +13,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from datetime import datetime
+import sys
 
 
 # hitCount = 0
@@ -56,15 +58,18 @@ def set_up_experiment(ip, port):
     # return 
     source_data = data["website"].tolist()
 
-    iteration_num = 100 # number of iteration for each probe
-    experiment_num = 50
+    iteration_num = 10 # number of iteration for each probe
+    experiment_num = 5
     miss =[]
     hit =[]
+    
      # initiate empty array to store delay or throughput
     average_rtt=[]
-  
+    average_size=[]
+    average_th=[]
     for _ in range(experiment_num):
         rtt = []
+        res_size = []
         hitCount = 0
         missCount = 0
         for i in range(iteration_num):
@@ -72,7 +77,7 @@ def set_up_experiment(ip, port):
             print("experiment "+str(_)+" iteration "+str(i))
             print(req)
             start_time =  time.time()
-            r = send_request_to_cache(ip, port, req)
+            r,s  = send_request_to_cache(ip, port, req)
             
             if r == 'HIT':
                 hitCount = hitCount+1
@@ -80,11 +85,15 @@ def set_up_experiment(ip, port):
             elif r == 'MISS':
                 missCount = missCount +1
             
+            print("size", s)
             end_time =  time.time()
             t = end_time-start_time
             rtt.append(t)
+            res_size.append(s)
 
         average_rtt.append(sum(rtt)/iteration_num) 
+        average_size.append(sum(res_size)/iteration_num)
+        average_th.append(sum(res_size)/sum(rtt))
         print("MISS ", missCount/iteration_num)
         miss.append(missCount/iteration_num)
         hit.append(hitCount/iteration_num)
@@ -96,6 +105,7 @@ def set_up_experiment(ip, port):
     rtt_df["RTT"] = average_rtt
     rtt_df["MISS"] = miss
     rtt_df["HIT"] = hit
+    rtt_df["TH"] = average_th
 
     now = datetime.now()
     current_time = now.strftime("%H%M%S")
@@ -105,7 +115,7 @@ def set_up_experiment(ip, port):
     # ts.plot()
     
 
-    figure, axis = plt.subplots(2)
+    figure, axis = plt.subplots(3)
     figure.tight_layout(pad=3.0)
   
     # For Sine Function
@@ -118,12 +128,11 @@ def set_up_experiment(ip, port):
     axis[1].set_title("Hit and Miss")
     axis[1].legend()
 
+    axis[2].plot(average_th)
+    axis[2].set_title("average Throughput")
+
     # plt.show()
     plt.savefig(cache_type+str(current_time)+'.png')
-   
-
-
-
    
 
 
@@ -132,6 +141,7 @@ def send_request_to_cache(ip, port, message):
     # global missCount
 
     res = ''
+    bitSize = 0
     
     s = setup_connection(ip, port)
     # hasError = False
@@ -167,8 +177,8 @@ def send_request_to_cache(ip, port, message):
         # print("MISS")
         res = 'MISS'
         # missCount = missCount+1
-
-    return res
+    bitSize = sys.getsizeof(completeData)/1000000
+    return res, bitSize
     # print(completeData) 
     
     
