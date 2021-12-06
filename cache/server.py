@@ -42,18 +42,6 @@ def get_article(url):
     return cache[url]
 
 
-    print("Getting article...")
-    if not (url.startswith("http://www.")):
-        url = "http://www."+url
-    print(url)
-
-    if url not in cache:
-        cache[url] = get_article_from_server(url)
-    else:
-        response_message = 'HIT'
-
-    return cache[url]
-
 
 def server_program(port):
     global response_message

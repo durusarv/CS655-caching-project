@@ -50,8 +50,8 @@ def set_up_experiment(ip, port):
     # return 
     source_data = data["website"].tolist()
 
-    iteration_num = 20 # number of iteration for each probe
-    experiment_num = 100
+    iteration_num = 100 # number of iteration for each probe
+    experiment_num = 50
     miss =[]
     hit =[]
      # initiate empty array to store delay or throughput
@@ -63,7 +63,7 @@ def set_up_experiment(ip, port):
         missCount = 0
         for i in range(iteration_num):
             req = random.choice(source_data)
-            print("iteration ", i)
+            print("experiment "+str(_)+" iteration "+str(i))
             print(req)
             start_time =  time.time()
             send_request_to_cache(ip, port, req)
@@ -72,8 +72,8 @@ def set_up_experiment(ip, port):
             rtt.append(t)
 
         average_rtt.append(sum(rtt)/iteration_num) 
-        miss.append(missCount)
-        hit.append(hitCount)
+        miss.append(missCount/iteration_num)
+        hit.append(hitCount/iteration_num)
 
 
     print("Miss avg ",sum(miss)/experiment_num)
@@ -151,7 +151,7 @@ def send_request_to_cache(ip, port, message):
 if __name__ == '__main__':
 
     port = 9000
-    ip = "localhost"
+    ip = "localhost"  #ip address of the server
     set_up_experiment(ip, port)
     
 
