@@ -31,7 +31,7 @@ def get_article(url):
         url = "http://"+url
     elif not (url.startswith("http://www.")):
         url = "http://www."+url
-    # print(url)
+    print(url)
 
     if url not in cache:
         cache[url] = get_article_from_server(url)
@@ -95,17 +95,19 @@ def server_program(port):
                 # print ("processing request ", completeData)                
                 res = get_article(completeData) 
                 if res:
+                    #print("HIT or MISS ",response_message)
                     response_message = response_message + res
+                    #print("HIT or MISS ",response_message)
 
                 # print(response_message)
-                c.sendall(response_message.encode())
+                c.sendall(response_message.encode('utf-8'))
                 c.close()
                 break
 
             except:
                 print('close connection because of error')
                 #resp = '404 ERROR'
-                #c.sendall(resp.encode()) # send error message and close connection 
+                c.sendall(resp.encode('utf-8')) # send error message and close connection 
                 break
                
             

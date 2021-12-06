@@ -1,3 +1,4 @@
+from __future__ import division
 import socket # for socket
 import sys
 import time
@@ -7,10 +8,15 @@ from base64 import b64decode
 import pandas as pd
 import random
 import string
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from datetime import datetime
 
-hitCount = 0
-missCount= 0
+
+# hitCount = 0
+# missCount= 0
+cache_type= ''
 
 def setup_connection(ip, port) : 
     try:
@@ -42,8 +48,8 @@ def setup_connection(ip, port) :
 
 def set_up_experiment(ip, port):
 
-    global hitCount
-    global missCount
+    # global hitCount
+    # global missCount
     data = pd.read_csv("source.csv")
     # print(data.loc[0])
    
@@ -66,12 +72,20 @@ def set_up_experiment(ip, port):
             print("experiment "+str(_)+" iteration "+str(i))
             print(req)
             start_time =  time.time()
-            send_request_to_cache(ip, port, req)
+            r = send_request_to_cache(ip, port, req)
+            
+            if r == 'HIT':
+                hitCount = hitCount+1
+                print(r, hitCount)
+            elif r == 'MISS':
+                missCount = missCount +1
+            
             end_time =  time.time()
             t = end_time-start_time
             rtt.append(t)
 
         average_rtt.append(sum(rtt)/iteration_num) 
+        print("MISS ", missCount/iteration_num)
         miss.append(missCount/iteration_num)
         hit.append(hitCount/iteration_num)
 
@@ -83,12 +97,16 @@ def set_up_experiment(ip, port):
     rtt_df["MISS"] = miss
     rtt_df["HIT"] = hit
 
-    rtt_df.to_csv('rtt.csv')
+    now = datetime.now()
+    current_time = now.strftime("%H%M%S")
+
+    rtt_df.to_csv(cache_type+str(current_time)+'rtt.csv')
     # ts = pd.Series(rtt)
     # ts.plot()
     
 
     figure, axis = plt.subplots(2)
+    figure.tight_layout(pad=3.0)
   
     # For Sine Function
     axis[0].plot(average_rtt)
@@ -100,8 +118,8 @@ def set_up_experiment(ip, port):
     axis[1].set_title("Hit and Miss")
     axis[1].legend()
 
-    plt.show()
-    
+    # plt.show()
+    plt.savefig(cache_type+str(current_time)+'.png')
    
 
 
@@ -110,8 +128,11 @@ def set_up_experiment(ip, port):
 
 
 def send_request_to_cache(ip, port, message):
-    global hitCount
-    global missCount
+    # global hitCount
+    # global missCount
+
+    res = ''
+    
     s = setup_connection(ip, port)
     # hasError = False
     # message = "http://www.bu.edu"    
@@ -136,23 +157,36 @@ def send_request_to_cache(ip, port, message):
     completeData = unformatData.decode('utf-8', 'ignore')  
 
     if ('404 ERROR' in completeData):
-        print("404 ERROR")
+        # print("404 ERROR")
+        res = "404 ERROR"
     elif('HIT' in completeData):
-         print("HIT")
-         hitCount = hitCount+1
+        #  print("HIT")
+         res = 'HIT'
+        #  hitCount = hitCount+1
     elif('MISS' in completeData):
-        print("MISS")
-        missCount = missCount+1
+        # print("MISS")
+        res = 'MISS'
+        # missCount = missCount+1
 
+    return res
     # print(completeData) 
     
     
 
 if __name__ == '__main__':
 
-    port = 9000
-    ip = "localhost"  #ip address of the server
-    set_up_experiment(ip, port)
+    #global cache_type
+    server_address = sys.argv[1:]
+    if (len(server_address) < 2):        
+        print("Please add ip address of server and type of cache")
+        print("python client.py localhost LRU_CACHE")
+    else:
+        
+        ip_address = server_address[0]
+        cache_type = server_address[1]
+        port = 9000
+        # ip = "localhost"  #ip address of the server
+        set_up_experiment(ip_address, port)
     
 
     
