@@ -76,8 +76,8 @@ def set_up_experiment(ip, port):
             req = random.choice(source_data)
             print("experiment "+str(_)+" iteration "+str(i))
             print(req)
-            start_time =  time.time()
-            r,s  = send_request_to_cache(ip, port, req)
+            # start_time =  time.time()
+            r,s,t  = send_request_to_cache(ip, port, req)
             
             if r == 'HIT':
                 hitCount = hitCount+1
@@ -86,8 +86,8 @@ def set_up_experiment(ip, port):
                 missCount = missCount +1
             
             print("size", s)
-            end_time =  time.time()
-            t = end_time-start_time
+            # end_time =  time.time()
+            # t = end_time-start_time
             rtt.append(t)
             res_size.append(s)
 
@@ -150,8 +150,10 @@ def send_request_to_cache(ip, port, message):
     completeData = ''
     unformatData = None
 
+    st =  time.time()
+
     while True:
-        data = s.recv(4096 *4 )
+        data = s.recv(4096 * 8 )
         # print(data)
         if data:
             if unformatData is None:
@@ -163,7 +165,8 @@ def send_request_to_cache(ip, port, message):
             s.close()
             break
         
-    
+    et =  time.time()
+    delay = et - st
     completeData = unformatData.decode('utf-8', 'ignore')  
 
     if ('404 ERROR' in completeData):
@@ -178,7 +181,7 @@ def send_request_to_cache(ip, port, message):
         res = 'MISS'
         # missCount = missCount+1
     bitSize = sys.getsizeof(completeData)/1000000
-    return res, bitSize
+    return res, bitSize, delay
     # print(completeData) 
     
     
