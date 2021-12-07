@@ -120,7 +120,7 @@ def set_up_experiment(ip, port):
   
     # For Sine Function
     axis[0].plot(average_rtt)
-    axis[0].set_title("average RTT")
+    axis[0].set_title("Average RTT")
     
     # For Cosine Function
     axis[1].plot(miss, label=' Miss')
@@ -129,7 +129,7 @@ def set_up_experiment(ip, port):
     axis[1].legend()
 
     axis[2].plot(average_th)
-    axis[2].set_title("average Throughput")
+    axis[2].set_title("Average Throughput")
 
     # plt.show()
     plt.savefig(cache_type+str(current_time)+'.png')
