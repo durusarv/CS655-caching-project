@@ -26,27 +26,41 @@ def set_up_experiment():
     experiment_num = 100
     miss = []
     hit = []
+    loss = []
     # initiate empty array to store delay or throughput
     average_rtt = []
+    average_tput = []
 
     for _ in range(experiment_num):
         rtt = []
+        tput = []
         hitCount = 0
         missCount = 0
+        loss_count = 0
 
         for i in range(iteration_num):
-            req = random.choice(source_data)
-            print("iteration ", i)
-            print("curl -x localhost:8888 " + req)
-            start_time = time.time()
-            subprocess.call("curl -x localhost:8888 " + req, shell=True)
-            end_time = time.time()
-            t = end_time - start_time
-            rtt.append(t)
+            loss_chance = random.random()
+            if loss_chance > 0:
+                req = random.choice(source_data)
+                print("iteration ", i)
+                print("curl -x localhost:8888 " + req)
+                start_time = time.time()
+                subprocess.call("curl -o test.txt -x localhost:8888 " + req, shell=True)
+                end_time = time.time()
+                t = end_time - start_time
+                tput.append(os.path.getsize('test.txt') / t)
+                rtt.append(t)
+            else:
+                print("REQUEST LOSS")
+                loss_count += 1
+                tput.append(0)
+                rtt.append(2)
 
         counts = read_nginx_log()
         average_rtt.append(sum(rtt) / iteration_num)
+        average_tput.append(sum(tput) / iteration_num)
         miss.append(counts[1] - missCount)
+        loss.append(loss_count)
         hit.append(counts[0] - hitCount)
         hitCount += counts[0]
         missCount += counts[1]
@@ -57,24 +71,10 @@ def set_up_experiment():
     rtt_df["RTT"] = average_rtt
     rtt_df["MISS"] = miss
     rtt_df["HIT"] = hit
+    rtt_df["LOSS"] = loss
+    rtt_df["THROUGHPUT"] = average_tput
 
     rtt_df.to_csv('rtt.csv')
-    # ts = pd.Series(rtt)
-    # ts.plot()
-
-    figure, axis = plt.subplots(2)
-
-    # For Sine Function
-    axis[0].plot(average_rtt)
-    axis[0].set_title("average RTT")
-
-    # For Cosine Function
-    axis[1].plot(miss, label=' Miss')
-    axis[1].plot(hit, label='Hit')
-    axis[1].set_title("Hit and Miss")
-    axis[1].legend()
-
-    plt.show()
 
 
 def read_nginx_log():
