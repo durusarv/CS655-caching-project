@@ -4,8 +4,8 @@ import pandas as pd
 import random
 import subprocess
 
-hitCount = -1
-missCount = -1
+hitCount = 0
+missCount = 0
 
 
 def set_up_experiment():
@@ -22,6 +22,7 @@ def set_up_experiment():
     miss = []
     hit = []
     loss = []
+
     # initiate empty array to store delay or throughput
     average_rtt = []
     average_tput = []
@@ -34,34 +35,50 @@ def set_up_experiment():
         loss_count = 0
 
         for i in range(iteration_num):
+            # generate random number for loss
             loss_chance = random.random()
             if loss_chance > 0:
+                # request is not lost
+
+                # choose a random website to make the request to
                 req = random.choice(source_data)
                 print("iteration ", i)
                 print("curl -x localhost:8888 " + req)
+
+                # send the request
                 start_time = time.time()
                 subprocess.call("curl -o test.txt -x localhost:8888 " + req, shell=True)
                 end_time = time.time()
                 t = end_time - start_time
+
+                # collect throughput and rtt
                 tput.append(os.path.getsize('test.txt') / t)
                 rtt.append(t)
             else:
+                # lose the request
                 print("REQUEST LOSS")
                 loss_count += 1
                 tput.append(0)
-                rtt.append(2)
+                rtt.append(60)
 
+        # get hit and miss counts from the custom log file
         counts = read_nginx_log()
+
+        # calculate average rtt and tput for the 20 requests
         average_rtt.append(sum(rtt) / iteration_num)
         average_tput.append(sum(tput) / iteration_num)
+
+        # record cache miss, hit and loss
         miss.append(counts[1] - missCount)
         loss.append(loss_count)
         hit.append(counts[0] - hitCount)
         hitCount += counts[0]
         missCount += counts[1]
 
-    print("Miss avg ", sum(miss) / experiment_num)
-    print("Hit avg ", sum(hit) / experiment_num)
+    print("Miss total ", sum(miss) / experiment_num)
+    print("Hit total ", sum(hit) / experiment_num)
+
+    # save data to a csv file
     rtt_df = pd.DataFrame()
     rtt_df["RTT"] = average_rtt
     rtt_df["MISS"] = miss
@@ -77,18 +94,21 @@ def read_nginx_log():
     global missCount
     hit = 0
     miss = 0
+
+    # log file location
     file = '/var/log/nginx/cache_access.log'
     f = open(file, "r")
     for line in f:
         print(line)
         if "HIT" in line:
+            # count cache hit
             hit += 1
         else:
+            # count cache miss
             miss += 1
 
     return [hit, miss]
 
 
 if __name__ == '__main__':
-    # validate argument
     set_up_experiment()
