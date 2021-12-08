@@ -84,9 +84,9 @@ def set_up_experiment(ip, port, loss, delay):
             
             print("size", s)
             
-            r_number = np.random.normal(1,10)
+            r_number = np.random.randint(10)
             r_number = r_number/10
-
+            print(r_number, loss)
             if r_number < loss :
                 t= 2 # default loss
                 s = 1  # default size

@@ -13,7 +13,7 @@ class Node :
 
 class FIFOCache :
 
-    cacheLimit = 3
+    cacheLimit = 200
 
     def __init__(self, function) :
 
@@ -27,8 +27,8 @@ class FIFOCache :
     def __call__(self, *args, **kwargs) :
 
         if args in self.cache :
-
-            return self.cache[args]
+            return "HIT ".encode()+self.cache[args]
+            #return self.cache[args]
 
         if len(self.cache) > self.cacheLimit :
 
