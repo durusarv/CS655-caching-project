@@ -14,6 +14,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from datetime import datetime
 import sys
+import numpy as np
 
 
 # hitCount = 0
@@ -48,7 +49,7 @@ def setup_connection(ip, port) :
 
 
 
-def set_up_experiment(ip, port):
+def set_up_experiment(ip, port, loss, delay):
 
     # global hitCount
     # global missCount
@@ -58,8 +59,8 @@ def set_up_experiment(ip, port):
     # return 
     source_data = data["website"].tolist()
 
-    iteration_num = 10 # number of iteration for each probe
-    experiment_num = 5
+    iteration_num = 100 # number of iteration for each probe
+    experiment_num = 50
     miss =[]
     hit =[]
     
@@ -79,15 +80,26 @@ def set_up_experiment(ip, port):
             # start_time =  time.time()
             r,s,t  = send_request_to_cache(ip, port, req)
             
-            if r == 'HIT':
-                hitCount = hitCount+1
-                print(r, hitCount)
-            elif r == 'MISS':
-                missCount = missCount +1
+            
             
             print("size", s)
-            # end_time =  time.time()
-            # t = end_time-start_time
+            
+            r_number = np.random.normal(1,10)
+            r_number = r_number/10
+
+            if r_number < loss :
+                t= 2 # default loss
+                s = 1  # default size
+                missCount = missCount +1
+            else:
+                if r == 'HIT':
+                    hitCount = hitCount+1
+                    print(r, hitCount)
+                elif r == 'MISS':
+                    missCount = missCount +1
+            
+            t = t+ delay
+            
             rtt.append(t)
             res_size.append(s)
 
@@ -110,7 +122,7 @@ def set_up_experiment(ip, port):
     now = datetime.now()
     current_time = now.strftime("%H%M%S")
 
-    rtt_df.to_csv(cache_type+str(current_time)+'rtt.csv')
+    rtt_df.to_csv(cache_type+str(current_time)+"loss"+str(loss)+"delay"+str(delay)+'rtt.csv')
     # ts = pd.Series(rtt)
     # ts.plot()
     
@@ -132,7 +144,7 @@ def set_up_experiment(ip, port):
     axis[2].set_title("Average Throughput")
 
     # plt.show()
-    plt.savefig(cache_type+str(current_time)+'.png')
+    plt.savefig(cache_type+str(current_time)+"loss"+str(loss)+"delay"+str(delay)+'.png')
    
 
 
@@ -153,7 +165,7 @@ def send_request_to_cache(ip, port, message):
     st =  time.time()
 
     while True:
-        data = s.recv(4096 * 8 )
+        data = s.recv(4096 * 1024)
         # print(data)
         if data:
             if unformatData is None:
@@ -190,16 +202,18 @@ if __name__ == '__main__':
 
     #global cache_type
     server_address = sys.argv[1:]
-    if (len(server_address) < 2):        
-        print("Please add ip address of server and type of cache")
-        print("python client.py localhost LRU_CACHE")
+    if (len(server_address) < 4):        
+        print("Please add ip address of server and type of cache loss delay")
+        print("python client.py localhost LRU_CACHE 0.5 2")
     else:
         
         ip_address = server_address[0]
         cache_type = server_address[1]
+        loss = float(server_address[2])
+        delay = float(server_address[3])
         port = 9000
         # ip = "localhost"  #ip address of the server
-        set_up_experiment(ip_address, port)
+        set_up_experiment(ip_address, port, loss, delay)
     
 
     
