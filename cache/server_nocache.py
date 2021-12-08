@@ -1,4 +1,3 @@
-# first of all import the socket library
 import socket
 import sys   
 import re 
@@ -12,28 +11,22 @@ response_message =''
 def get_article_from_server(url):
     global response_message
     res = None
-    #print("Fetching article from server...")
     try:
         response = requests.get(url)
         response_message = "MISS"
         res = response.text
     except:
         response_message = '404 NOT FOUND'
-        
-    
     return res
 
 def get_article(url):
     global response_message
-    #print("Getting article...")
-    # print(url)
+
     if (url.startswith("www.")):
         url = "http://"+url
     elif not (url.startswith("http://www.")):
         url = "http://www."+url
     print(url)
-
-    # 
     return get_article_from_server(url)
 
 
@@ -44,7 +37,6 @@ def server_program(port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)        
     print ("Socket successfully created")
 
-    # 10.0.0.219
     host = socket.gethostname()
     print("host: "+host)
     server_address = ('', port)
@@ -82,26 +74,20 @@ def server_program(port):
                        
                     else:
                         print ("No data")
-                        resp = '404 ERROR' # if no data recieved, send error to client and close connection
-                        #c.sendall(resp.encode())
-                        # c.close()                    
-                        break
-                #parse the data and validate data
-                # print ("processing request ", completeData)                
+                        resp = '404 ERROR' # if no data recieved, send error to client and close connection                  
+                        break           
                 res = get_article(completeData) 
                 if res:
                     #print("HIT or MISS ",response_message)
                     response_message = response_message + res
                     #print("HIT or MISS ",response_message)
 
-                # print(response_message)
                 c.sendall(response_message.encode('utf-8'))
                 c.close()
                 break
 
             except:
                 print('close connection because of error')
-                #resp = '404 ERROR'
                 c.sendall(resp.encode('utf-8')) # send error message and close connection 
                 break
                
@@ -111,7 +97,6 @@ def server_program(port):
 
 
 if __name__ == '__main__':
-    # validate argument 
     
     port = 9000
     server_program(port)

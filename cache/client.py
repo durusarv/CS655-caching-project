@@ -16,11 +16,9 @@ from datetime import datetime
 import sys
 import numpy as np
 
-
-# hitCount = 0
-# missCount= 0
 cache_type= ''
 
+#Function to setup connection to cache server
 def setup_connection(ip, port) : 
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,15 +26,10 @@ def setup_connection(ip, port) :
     except socket.error as err:
         print ("socket creation failed with error %s" %(err))
     
-    # default port for socket
-    #port = 1980
-    
     try:
         host_ip = socket.gethostbyname(ip)
-        #host_ip = "localhost"
+        
     except socket.gaierror:
-    
-        # this means could not resolve the host
         print ("there was an error resolving the host")
         sys.exit()
     
@@ -48,23 +41,18 @@ def setup_connection(ip, port) :
 
 
 
-
+#Function to calculate statistics
 def set_up_experiment(ip, port, loss, delay):
 
-    # global hitCount
-    # global missCount
     data = pd.read_csv("source.csv")
-    # print(data.loc[0])
-   
-    # return 
     source_data = data["website"].tolist()
 
-    iteration_num = 100 # number of iteration for each probe
+    iteration_num = 100 # number of iterations for each probe
     experiment_num = 50
     miss =[]
     hit =[]
     
-     # initiate empty array to store delay or throughput
+    #initiate empty array to store delay or throughput
     average_rtt=[]
     average_size=[]
     average_th=[]
@@ -77,7 +65,6 @@ def set_up_experiment(ip, port, loss, delay):
             req = random.choice(source_data)
             print("experiment "+str(_)+" iteration "+str(i))
             print(req)
-            # start_time =  time.time()
             r,s,t  = send_request_to_cache(ip, port, req)
             
             
@@ -123,18 +110,13 @@ def set_up_experiment(ip, port, loss, delay):
     current_time = now.strftime("%H%M%S")
 
     rtt_df.to_csv(cache_type+str(current_time)+"loss"+str(loss)+"delay"+str(delay)+'rtt.csv')
-    # ts = pd.Series(rtt)
-    # ts.plot()
-    
-
+  
     figure, axis = plt.subplots(3)
     figure.tight_layout(pad=3.0)
   
-    # For Sine Function
     axis[0].plot(average_rtt)
     axis[0].set_title("Average RTT")
     
-    # For Cosine Function
     axis[1].plot(miss, label=' Miss')
     axis[1].plot(hit, label='Hit')
     axis[1].set_title("Hit and Miss")
@@ -143,21 +125,17 @@ def set_up_experiment(ip, port, loss, delay):
     axis[2].plot(average_th)
     axis[2].set_title("Average Throughput")
 
-    # plt.show()
     plt.savefig(cache_type+str(current_time)+"loss"+str(loss)+"delay"+str(delay)+'.png')
    
 
 
+#Function to send request to cache get reply
 def send_request_to_cache(ip, port, message):
-    # global hitCount
-    # global missCount
 
     res = ''
     bitSize = 0
     
     s = setup_connection(ip, port)
-    # hasError = False
-    # message = "http://www.bu.edu"    
     s.sendall(message.encode())
     completeData = ''
     unformatData = None
@@ -182,25 +160,18 @@ def send_request_to_cache(ip, port, message):
     completeData = unformatData.decode('utf-8', 'ignore')  
 
     if ('404 ERROR' in completeData):
-        # print("404 ERROR")
         res = "404 ERROR"
     elif('HIT' in completeData):
-        #  print("HIT")
          res = 'HIT'
-        #  hitCount = hitCount+1
     elif('MISS' in completeData):
-        # print("MISS")
         res = 'MISS'
-        # missCount = missCount+1
     bitSize = sys.getsizeof(completeData)/1000000
     return res, bitSize, delay
-    # print(completeData) 
     
     
 
 if __name__ == '__main__':
 
-    #global cache_type
     server_address = sys.argv[1:]
     if (len(server_address) < 4):        
         print("Please add ip address of server and type of cache loss delay")
@@ -212,10 +183,4 @@ if __name__ == '__main__':
         loss = float(server_address[2])
         delay = float(server_address[3])
         port = 9000
-        # ip = "localhost"  #ip address of the server
         set_up_experiment(ip_address, port, loss, delay)
-    
-
-    
-    #validate the argument 
-    

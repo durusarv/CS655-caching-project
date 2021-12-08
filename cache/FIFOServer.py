@@ -2,6 +2,7 @@ import requests
 import time
 import socket
 
+#Define each node of the cache
 class Node :
 
     def __init__(self, key, value) :
@@ -11,6 +12,7 @@ class Node :
         self.next = None
         self.previous = None
 
+#Implementing the cache as a doubly linked list 
 class FIFOCache :
 
     cacheLimit = 200
@@ -58,6 +60,7 @@ class FIFOCache :
         node.previous = p
         node.next = self.tail
 
+#Function to fetch the http page
 @FIFOCache
 def fetchArticle(url):
     response = requests.get(url)
@@ -66,15 +69,6 @@ def fetchArticle(url):
     return "MISS ".encode()+content
 
 
-   
-# while True :
-
-#     print("Enter URL : ")
-#     url = input()
-#     start = time.time()
-#     article = fetchArticle(url)
-#     end = time.time()
-#     print("Time taken : ", end - start)
 
 def server_program(port):
     
@@ -82,7 +76,7 @@ def server_program(port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)        
     print ("Socket successfully created")
 
-    # 10.0.0.219
+
     host = socket.gethostname()
     print("host: "+host)
     server_address = ('', port)
@@ -120,25 +114,18 @@ def server_program(port):
                        
                     else:
                         print ("No data")
-                        resp = '404 ERROR' # if no data recieved, send error to client and close connection
-                        #c.sendall(resp.encode())
-                        # c.close()                    
+                        resp = '404 ERROR' # if no data recieved, send error to client and close connection                   
                         break
-                #parse the data and validate data
-                # print ("processing request ", completeData) 
-                #print(completeData)
                 if (url.startswith("www.")):
                     url = "http://"+url
                 elif not (url.startswith("http://www.")):
                     url = "http://www."+url
 
                 res = fetchArticle(url)
-                # print(res)               
-                # res = get_article(completeData) 
+
                 if res:
                     response_message = res
 
-                # print(response_message)
                 c.sendall(response_message)
                 c.close()
                 break
@@ -157,13 +144,6 @@ def server_program(port):
 
 
 if __name__ == '__main__':
-    # validate argument 
     
     port = 9000
     server_program(port)
-    
-
-            
-        
-
-
