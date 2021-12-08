@@ -4,7 +4,7 @@ unzip main.zip
 
 
 Steps to install nginx:
-sudo apt-get update
+sudo apt update
 sudo apt install nginx
 sudo nginx -s stop
 
@@ -25,6 +25,6 @@ sudo apt install python-pip
 pip install pandas
 
 Run experiment:
-sudo python nginx-client.py
+sudo python nginx_client.py
 
 Please refer to the video for a step-by-step process
