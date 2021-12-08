@@ -78,6 +78,8 @@
 - Execute our bash script to install:
 `bash nginx-install.sh`
 
+The bash script contains instructions to install nginx and then copies the configuration file from the downloaded github repo to the correct location and starts nginx. It also installs the necessary python packages. 
+
 - To run the experiment:
 `sudo python nginx_client.py`
 
